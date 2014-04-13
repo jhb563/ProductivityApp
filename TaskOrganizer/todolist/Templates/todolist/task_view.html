@@ -1,0 +1,27 @@
+<li>
+	<div class="task">
+		<label>{{task.name}}</label>
+		<form action="/todolist/finishTask/" method="post" style="display:inline!important;">
+			{% csrf_token %}
+    	    <button type="submit" name="finishtask" class="FinishButton">Finish</button>
+    	    <input type="hidden" name="taskid" value={{task.id}}>
+        </form>
+        <form action="/todolist/removeTask/" method="post" style="display:inline!important;">
+        	{%csrf_token %}
+        	<button type="submit" name="removetask" class="RemoveButton">
+        		Remove
+            </button>
+        	<input type="hidden" name="taskid" value={{task.id}}>
+        </form>
+        <form action="/todolist/promoteTask/" method="post" style="display:inline!important;">
+            {% csrf_token %}
+            <button type="submit" name="promotetask" class="PromoteButton">
+                Promote
+            </button>
+            <input type="hidden" name="taskid" value={{task.id}}>
+        </form>
+        
+
+	</div>
+
+</li>

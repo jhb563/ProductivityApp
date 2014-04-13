@@ -1,0 +1,26 @@
+<button class="addTaskFormButton">Add Task</button>
+
+	            <form class="addTaskForm" action="/todolist/addtask/" method="post">
+	            	{% csrf_token %}
+	            	<label for="taskname">New Task Name:</label>
+	            	<input type="text" name="taskname" value="" id="taskname">
+	            	<br>
+	            	<input class="datetimepicker" type="datetime-local" name="deadline" id="deadline">
+	            	<br>
+	            	<label for="requiredTasks">Prerequisite Tasks</label>
+	            	<br>
+	            	<div class="scroll_checkbox">
+	            		{% if project.tasksForUser %}
+
+	            			{% for other_task in project.tasksForUser %}
+	            				<input type="checkbox" name="checks" value={{other_task.id}}>{{other_task.name}}<br>
+	            			{% endfor %}
+
+	            		{% endif %}
+	            	</div>
+	            	<br>
+	            	<input type="submit" name="Add Task">
+	            	<br>
+	            	<input type="hidden" name="projectid" value="{{project.id}}"">
+	            </form>
+	            <button class="hideTaskForm">Hide</button>

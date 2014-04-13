@@ -1,0 +1,21 @@
+{% block content %}
+
+<form action="/accounts/createUserAuth/" method="post">
+	{% csrf_token %}
+	<label for="username">Username</label>
+	<input type="text" name="username" value="" id="username">
+	<br>
+	<label for="password">Password</label>
+	<input type="password" name="password" value="" id="password">
+	<br>
+	<label for="confirmPassword">Confirm Password</label>
+	<input type="confirmPassword" name="confirmPassword" value="" id="confirmPassword">
+	<br>
+
+	<input type="submit" value="login"/>
+
+</form>
+<br>
+<p> Click <a href="/accounts/login">here</a> to log in as an old user. </p>
+
+{% endblock %}

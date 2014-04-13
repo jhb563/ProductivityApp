@@ -1,0 +1,64 @@
+<li>
+	<div class="project" style="color:{{project.color}}">
+	            <label>{{project.name}}</label>
+	            <form action="/todolist/finishProject/" method="post" style="display:inline!important;">
+	            	{% csrf_token %}
+	            	<button type="submit" name="finishproject" class="FinishButton">Finish</button>
+	            	<input type="hidden" name="projectid" value={{project.id}}>
+	            </form>
+	            <button type="button" class="ExpandButton">Expand</button>
+	            <button type="button" class="MinimizeButton">Minimize</button>
+	            <form action="/todolist/removeProject/" method="post" style="display:inline!important;">
+	            	{% csrf_token %}
+	            	<button type="submit" name="removeproject" class="RemoveButton">Remove</button>
+	            	<input type="hidden" name="projectid" value={{project.id}}>
+	            </form>
+	            <form action="/todolist/demoteProject/" method="post" style="display:inline!important;">
+	            	{% csrf_token %}
+	            	<button type="submit" name="demoteproject" class="DemoteButton">Demote</button>
+	            	<input type="hidden" name="projectid" value={{project.id}}>
+	            </form>
+	            
+	            
+	            <br>
+
+	            {% if project.subtasks %}
+
+	            <ul>
+	            	{% for subtask in project.subtasks %}
+	            		{% with task=subtask template_name="task_view.html/"%}
+
+	            			{% include template_name %}
+
+	            		{% endwith %}
+
+	            	{% endfor %}
+	            </ul>
+
+	            {% endif %}
+
+	            {% include "add_task_form.html"%}
+
+	            <br>
+
+	            {% if project.children %}
+
+	            <ul>
+
+		            {% for child_project in project.children %}
+		                {%with project=child_project template_name="project_view.html/"%}
+		                    {%include template_name%}
+		                {%endwith%}
+		            {%endfor%}
+
+	            </ul>
+
+	            {% endif %}
+
+	            {% include "add_project_form.html" %}
+
+	            <br>
+
+	            
+	</div>
+</li>

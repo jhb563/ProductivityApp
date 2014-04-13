@@ -1,0 +1,33 @@
+.project
+{
+	color: blue;
+	margin : 10px;
+	outline-style: solid;
+	width: 800px;
+}
+
+.project .project
+{
+	width: inherit;
+}
+
+.task
+{
+}
+
+
+.addTaskForm
+{
+}
+
+button
+{
+	margin: 5px;
+}
+
+.scroll_checkbox
+{
+	overflow-y : auto;
+	height : 40px;
+	width : 200px;
+}

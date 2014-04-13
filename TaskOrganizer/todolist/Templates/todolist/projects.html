@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+{% if user %}
+<h3> You are logged in as {{user.username}} </h3>
+<a href="/todolist/profile{{user.id}}">View Profile</a> <br>
+<a href="/accounts/logout/">Logout</a>
+<hr>
+{% endif %}
+
+{% if urgent_list %}
+<h2> Urgent Tasks! (Due in next 24 hours) </h2>
+<ul id="Urgent Tasks">
+    {% for task in urgent_list %}
+        <li> <label> {{task.name}} </label></li>
+    {% endfor %}
+</ul>
+<hr>
+{% endif %}
+
+{% if project_list %}
+<ul id="RootProjects">
+    {% for project in project_list %}
+        {%include "project_view.html/" %}
+    {% endfor %}
+</ul>    
+{% else %}
+    <p>No projects are available!
+{% endif %}
+<form action="/todolist/addproject/" method="post">
+    {% csrf_token %}
+    <label> Add Project: </label>
+    <br>
+    <label for="projectname">Name:</label>
+    <input type="text" name="projectname" value="" id="projectname">
+    <br>
+    <input class="datetimepicker" type="datetime-local" name="deadline" id="deadline">
+    <br>
+    <input type="submit" name="Add Project">
+    <br>
+    <input type="hidden" name="parentid" value="-1">
+</form>
+
+
+{% if task_list %}
+    <hr>
+    <h3> Your next tasks </h3>
+        <ul id="NextTasks">
+            {% for task in task_list %}
+                <li> <label> {{task.name}} </label></li>
+            {% endfor %}
+        </ul>
+{% endif %}
+
+{% endblock %}

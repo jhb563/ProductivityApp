@@ -1,0 +1,18 @@
+<button class="addProjectFormButton">Add Subproject</button>
+
+	            <br>
+
+	            <form class="addProjectForm" action="/todolist/addproject/" method="post">
+	                {% csrf_token %}
+	                <label for="projectname">Name:</label>
+	                <input type="text" name="projectname" value="" id="projectname">
+	                <br>
+	                <input class="datetimepicker" type="datetime-local" name="deadline" id="deadline">
+	                <br>
+	                <input type="submit" name="Add Project">
+	                <br>
+	                <input type="hidden" name="parentid" value="{{project.id}}">
+	            </form>
+
+
+	            <button class="hideProjectForm">Hide</button>

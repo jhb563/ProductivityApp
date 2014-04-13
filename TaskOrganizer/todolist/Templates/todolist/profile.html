@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+	{% if user %}
+
+		<h4> Statistics for {{user.username}} </h4>
+
+		{% if finishedTCount %}
+
+			<p> Total Finished Tasks: {{finishedTCount}} </p>
+
+		{% endif %}
+
+		{% if finishedPCount %}
+
+			<p> Total Finished Projects: {{finishedPCount}} </p>
+
+		{% endif %}
+
+		{% if unfinishedTCount %}
+
+			<p> Total Unfinished Tasks: {{unfinishedTCount}} </p>
+
+		{% endif %}
+
+		{% if unfinishedPCount %}
+
+			<p> Total Unfinished Projects: {{unfinishedPCount}} </p>
+
+		{% endif %}
+
+		{% if tFinRecentCount %}
+
+			<p> Recently Finished Tasks: {{tFinRecentCount}} </p>
+
+		{% endif %}
+
+		{% if pFinRecentCount %}
+
+			<p> Recently Finished Projects: {{pFinRecentCount}} </p>
+
+		{% endif %}
+
+
+    <a href="/todolist/projects{{user.id}}/">Back to Projects</a>
+	{% endif %}
+
+
+
+{% endblock %}
