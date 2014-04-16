@@ -58,6 +58,7 @@ class Task(models.Model):
     def isUrgent(self):
         return self.deadline <= timezone.now() + datetime.timedelta(days = 1)
 
+
     def finishedRecently(self):
         if self.finished == 0:
             return false

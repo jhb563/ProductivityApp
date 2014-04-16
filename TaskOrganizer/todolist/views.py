@@ -5,7 +5,9 @@ from django.contrib.auth.models import User
 from models import Project
 from django.core.context_processors import csrf
 from django.utils import timezone
+from datetime import datetime
 from random import randrange
+from collections import deque
 
 from todolist.models import Project, Task
 
@@ -60,24 +62,81 @@ def profile(request, user_id):
         return HttpResponseRedirect('accounts/invalid')
         
 
-# Compares two tasks and determines which is more urgent,
-# returning true if the second is more urgent than the first
-# Generally, a task is more urgent if its deadline comes
-# before that of another task. However, for each task that
-# depends on one of the given tasks, that one's deadline
-# moves up by two hours
-def compareTasks(t1,t2):
-    time1 = t1.deadline
-    time2 = t2.deadline
-    
+def assignDeadlinesToTasks(request):
+    U = request.user
+    if request.user.is_authenticated() and request.POST:
+        # Do the algorithm
+        # Get the "first deadline" (tonight just before midnight)
+        deadline = datetime.now()
+        deadline.hour = 23
+        deadline.minute = 59
+        deadline.second = 59
+        deadline.microsecond = 0
+
+        # Create a task queue, consisting of a list of lists
+        # Each inner list is the list of unassigned tasks in a given project
+        # The lists themselves are ordered by the deadlines of their projects
+        # initially. This needs to be a deque
+        projectQ = deque()
+
+        unfinishedProjects = Project.object.filter(user = U, finished = 0).order_by("deadline")
+        for p in unfinishedProjects:
+            # TODO Add priority to tasks
+            unassignedTasksForP = Task.object.filter(parent_project = p,finished = 0,deadline = NULL).order_by("priority")
+            if unassignedTasksForP.count > 0:
+                tasksQueue = deque()
+                for unassignedT in unassignedTasksForP:
+                    tasksQueue.append(unassignedT)
+                projectQ.append(tasksQueue)
+        
 
 
-# Helper function for determining an ordering on the most
-# urgent tasks
+        # Loop until we have assigned deadlines to all of the tasks
+        while(len(projectQ) > 0):
+            # get today's day of week
+            dayOfWeek = deadline.weekday();
 
-def orderTasksByUrgency(tasks):
-    return tasks.order_by("deadline")
+            # Get tasks due today, that is the tasks that are due before
+            # the current deadline variable, but after 24 hours before it
+            oneDayEarlier = deadline - datetime.timedelta(days = 1)
+            tasksToday = Task.objects.filter(user = U, finished = 0).exclude(deadline == NULL).exclude(deadline__gte=deadline).filter(deadline__gte=oneDayEarlier)
 
+            # Get the amount of time the user has allocated for this day,
+            # keep track of the difference
+            # TODO User time for day method
+            timeRemaing = U.timeForDay(dayOfWeek)
+
+            # Subtract from the time remaining the amount of time already
+            # used by tasks
+            # TODO Task needs time allocation field
+            for t in tasksToday:
+                timeRemaing -= t.timeAllocation
+
+
+            # While time is greater than 0
+            while(timeRemaing > 0):
+                # Get the first task in the first list of projects, remove
+                # it from the list
+                firstProjectList = projectQ.popleft()
+                newTask = firstProjectList.popleft()
+
+                # Set its deadline for the current deadline, subtract from
+                # time remaining this task's allocated time
+                newTask.deadline = deadline
+                timeRemaing -= newTask.timeAllocation
+
+                # Pop the first list from our project queue and, if it
+                # is not empty, append it to the back
+                if len(firstProjectList) > 0:
+                    projectQ.append(firstProjectList)
+
+            # advance the deadline by 24 hours
+            deadline += datetime.timedelta(days = 1)
+
+
+        return HttpResponseRedirect('/todolist/projects'+str(U.id))
+    else :
+        return HttpResponseRedirect('/accounts/invalid')
 
 
 def projects(request, user_id):
