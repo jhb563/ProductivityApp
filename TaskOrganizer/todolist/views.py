@@ -9,7 +9,7 @@ from datetime import datetime
 from random import randrange
 from collections import deque
 
-from todolist.models import Project, Task
+from todolist.models import Project, Task, UserOptions
 
 def profile(request, user_id):
     UList = User.objects.filter(id = user_id)
@@ -39,6 +39,8 @@ def profile(request, user_id):
         unfinishedProjects = thisUserProjects.filter(finished = 0)
         finishedPCount = finishedProjects.count()
         unfinishedPCount = unfinishedProjects.count()
+        options = UserOptions.objects.filter(user = U)[0]
+
 
         pFinRecentCount = 0
         for p in finishedProjects:
@@ -54,6 +56,7 @@ def profile(request, user_id):
             'unfinishedPCount' : unfinishedPCount,
             'tFinRecentCount' : tFinRecentCount,
             'pFinRecentCount' : pFinRecentCount,
+            'options' : options,
 
             })
 
@@ -61,6 +64,26 @@ def profile(request, user_id):
     else:
         return HttpResponseRedirect('accounts/invalid')
         
+
+def updateUserTimes(request):
+    U = request.user
+    if request.user.is_authenticated() and request.POST:
+        # find the user and update their UserOptions object
+        # with the new times submitted from the form
+        # TODO This will error if the user doesn't have an options object
+        opts = UserOptions.objects.filter(user = U)[0]
+        opts.sundayTime = int(request.POST.get('sunday','300'))
+        opts.mondayTime = int(request.POST.get('monday','300'))
+        opts.tuesdayTime = int(request.POST.get('tuesday','300'))
+        opts.wednesdayTime = int(request.POST.get('wednesday','300'))
+        opts.thursdayTime = int(request.POST.get('thursday','300'))
+        opts.fridayTime = int(request.POST.get('friday','300'))
+        opts.saturdayTime = int(request.POST.get('saturday','300'))
+        opts.save()
+        return HttpResponseRedirect('/todolist/profile'+str(U.id))
+    else:
+        return HttpResponseRedirect('/accounts/invalid')
+
 
 def assignDeadlinesToTasks(request):
     U = request.user
@@ -82,7 +105,7 @@ def assignDeadlinesToTasks(request):
         unfinishedProjects = Project.object.filter(user = U, finished = 0).order_by("deadline")
         for p in unfinishedProjects:
             # TODO Add priority to tasks
-            unassignedTasksForP = Task.object.filter(parent_project = p,finished = 0,deadline = NULL).order_by("priority")
+            unassignedTasksForP = Task.object.filter(parent_project = p,finished = 0,assigned = 0).order_by("priority")
             if unassignedTasksForP.count > 0:
                 tasksQueue = deque()
                 for unassignedT in unassignedTasksForP:
@@ -99,7 +122,7 @@ def assignDeadlinesToTasks(request):
             # Get tasks due today, that is the tasks that are due before
             # the current deadline variable, but after 24 hours before it
             oneDayEarlier = deadline - datetime.timedelta(days = 1)
-            tasksToday = Task.objects.filter(user = U, finished = 0).exclude(deadline == NULL).exclude(deadline__gte=deadline).filter(deadline__gte=oneDayEarlier)
+            tasksToday = Task.objects.filter(user = U, finished = 0).exclude(assigned = 0).exclude(deadline__gte=deadline).filter(deadline__gte=oneDayEarlier)
 
             # Get the amount of time the user has allocated for this day,
             # keep track of the difference
@@ -123,6 +146,8 @@ def assignDeadlinesToTasks(request):
                 # Set its deadline for the current deadline, subtract from
                 # time remaining this task's allocated time
                 newTask.deadline = deadline
+                newTask.assigned = 1
+                newTask.save()
                 timeRemaing -= newTask.timeAllocation
 
                 # Pop the first list from our project queue and, if it
@@ -162,9 +187,12 @@ def projects(request, user_id):
         # Get tasks that need to be done in the next day as well
         allTasks = Task.objects.filter(user = U, finished = 0).order_by("deadline")
 
+        unassigned_tasks = allTasks.filter(assigned = 0)
+        assigned_tasks = allTasks.filter(assigned = 1)
+
         next_tasks = []
         urgent_tasks = []
-        for t in allTasks:
+        for t in assigned_tasks:
             
             if t.requiredTasks.filter(finished = 0).count() <= 0:
                 next_tasks.append(t)
@@ -177,6 +205,7 @@ def projects(request, user_id):
         'project_list' : root_projects,
         'task_list' : next_tasks,
         'urgent_list' : urgent_tasks,
+        'unassigned_list' : unassigned_tasks,
         })
         return HttpResponse(template.render(context))
     else :

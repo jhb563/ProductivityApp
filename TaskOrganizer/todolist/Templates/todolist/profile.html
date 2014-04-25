@@ -42,6 +42,31 @@
 
 		{% endif %}
 
+		{% if options %}
+
+		    
+
+			<form action="/todolist/updateUserTimes/" method="post">
+				{% csrf_token %}
+				Sunday Minutes: <input type="number" name="sunday" min="0" max="600" value={{options.sundayTime}}>
+				<br>
+				Monday Minutes: <input type="number" name="monday" min="0" max="600" value={{options.mondayTime}}>
+				<br>
+				Tuesday Minutes: <input type="number" name="tuesday" min="0" max="600" value={{options.tuesdayTime}}>
+				<br>
+				Wednesday Minutes: <input type="number" name="wednesday" min="0" max="600" value={{options.wednesdayTime}}>
+				<br>
+				Thursday Minutes: <input type="number" name="thursday" min="0" max="600" value={{options.thursdayTime}}>
+				<br>
+				Friday Minutes: <input type="number" name="friday" min="0" max="600" value={{options.fridayTime}}>
+				<br>
+				Saturday Minutes: <input type="number" name="saturday" min="0" max="600" value={{options.saturdayTime}}>
+				<br>
+				<input type="submit">
+			</form>
+
+		{% endif %}
+
 
     <a href="/todolist/projects{{user.id}}/">Back to Projects</a>
 	{% endif %}

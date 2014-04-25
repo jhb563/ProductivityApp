@@ -15,6 +15,8 @@ urlpatterns = patterns('',
                        url(r'^demoteProject/$', views.demoteProject),
                        url(r'^invalid_project_add/$',views.invalid_project_add),
                        url(r'^invalid_task_access/$',views.invalid_task_access),
+                       url(r'^updateUserTimes/$',views.updateUserTimes),
+                       url(r'^assignTasks/$',views.assignDeadlinesToTasks),
 
                        )
 

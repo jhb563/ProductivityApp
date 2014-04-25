@@ -19,6 +19,23 @@
 <hr>
 {% endif %}
 
+{% if unassigned_list %}
+
+<h2> Unassigned Tasks! </h2>
+<ul id="Urgent Tasks">
+    {% for task in unassigned_list %}
+        <li> <label> {{task.name}} </label></li>
+    {% endfor %}
+</ul>
+<form action="/todolist/assignTasks/" method="post">
+    <input type="submit">
+</form>
+
+
+<hr>
+
+{% endif %}
+
 {% if project_list %}
 <ul id="RootProjects">
     {% for project in project_list %}
