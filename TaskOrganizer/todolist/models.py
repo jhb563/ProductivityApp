@@ -15,13 +15,13 @@ class UserOptions(models.Model):
     saturdayTime = models.IntegerField(default = 300)
     
     def timeForDay(self,dayOfWeek):
-        timeDictionary = {0 : self.sundayTime,
-        1 : self.mondayTime,
-        2 : self.tuesdayTime,
-        3 : self.wednesdayTime,
-        4 : self.thursdayTime,
-        5 : self.fridayTime,
-        6 : self.saturdayTime}
+        timeDictionary = {6 : self.sundayTime,
+        0 : self.mondayTime,
+        1 : self.tuesdayTime,
+        2 : self.wednesdayTime,
+        3 : self.thursdayTime,
+        4 : self.fridayTime,
+        5 : self.saturdayTime}
         return timeDictionary[dayOfWeek]
 
 

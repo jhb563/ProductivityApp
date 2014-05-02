@@ -28,6 +28,7 @@
     {% endfor %}
 </ul>
 <form action="/todolist/assignTasks/" method="post">
+    {% csrf_token %}
     <input type="submit">
 </form>
 

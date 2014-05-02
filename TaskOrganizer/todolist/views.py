@@ -5,7 +5,7 @@ from django.contrib.auth.models import User
 from models import Project
 from django.core.context_processors import csrf
 from django.utils import timezone
-from datetime import datetime
+from datetime import datetime, timedelta
 from random import randrange
 from collections import deque
 
@@ -90,11 +90,8 @@ def assignDeadlinesToTasks(request):
     if request.user.is_authenticated() and request.POST:
         # Do the algorithm
         # Get the "first deadline" (tonight just before midnight)
-        deadline = datetime.now()
-        deadline.hour = 23
-        deadline.minute = 59
-        deadline.second = 59
-        deadline.microsecond = 0
+        today = datetime.now()
+        deadline = datetime(today.year,today.month,today.day,23,59,59,0)
 
         # Create a task queue, consisting of a list of lists
         # Each inner list is the list of unassigned tasks in a given project
@@ -102,15 +99,16 @@ def assignDeadlinesToTasks(request):
         # initially. This needs to be a deque
         projectQ = deque()
 
-        unfinishedProjects = Project.object.filter(user = U, finished = 0).order_by("deadline")
+        unfinishedProjects = Project.objects.filter(user = U, finished = 0).order_by("deadline")
         for p in unfinishedProjects:
-            # TODO Add priority to tasks
-            unassignedTasksForP = Task.object.filter(parent_project = p,finished = 0,assigned = 0).order_by("priority")
-            if unassignedTasksForP.count > 0:
+            unassignedTasksForP = Task.objects.filter(parent_project = p,finished = 0,assigned = 0).order_by("priority")
+            if unassignedTasksForP.count() > 0:
                 tasksQueue = deque()
                 for unassignedT in unassignedTasksForP:
                     tasksQueue.append(unassignedT)
                 projectQ.append(tasksQueue)
+
+        print(projectQ)
         
 
 
@@ -121,23 +119,23 @@ def assignDeadlinesToTasks(request):
 
             # Get tasks due today, that is the tasks that are due before
             # the current deadline variable, but after 24 hours before it
-            oneDayEarlier = deadline - datetime.timedelta(days = 1)
+            oneDayEarlier = deadline - timedelta(days = 1)
             tasksToday = Task.objects.filter(user = U, finished = 0).exclude(assigned = 0).exclude(deadline__gte=deadline).filter(deadline__gte=oneDayEarlier)
 
             # Get the amount of time the user has allocated for this day,
             # keep track of the difference
-            # TODO User time for day method
-            timeRemaing = U.timeForDay(dayOfWeek)
+            opts = UserOptions.objects.filter(user = U)[0]
+            timeRemaing = opts.timeForDay(dayOfWeek)
+            print(str(timeRemaing))
 
             # Subtract from the time remaining the amount of time already
             # used by tasks
-            # TODO Task needs time allocation field
             for t in tasksToday:
                 timeRemaing -= t.timeAllocation
 
 
             # While time is greater than 0
-            while(timeRemaing > 0):
+            while(timeRemaing > 0 and len(projectQ) > 0):
                 # Get the first task in the first list of projects, remove
                 # it from the list
                 firstProjectList = projectQ.popleft()
@@ -149,6 +147,7 @@ def assignDeadlinesToTasks(request):
                 newTask.assigned = 1
                 newTask.save()
                 timeRemaing -= newTask.timeAllocation
+                print(timeRemaing)
 
                 # Pop the first list from our project queue and, if it
                 # is not empty, append it to the back
@@ -156,7 +155,7 @@ def assignDeadlinesToTasks(request):
                     projectQ.append(firstProjectList)
 
             # advance the deadline by 24 hours
-            deadline += datetime.timedelta(days = 1)
+            deadline += timedelta(days = 1)
 
 
         return HttpResponseRedirect('/todolist/projects'+str(U.id))
@@ -224,6 +223,14 @@ def genRandomColor():
     return result
 
 
+def createUnassignedTaskForUser(taskname,user,parentProject):
+    t = timezone.now()
+    T = Task(user=user,name=taskname,date_started = t,deadline=t,date_finished=t,parent_project=parentProject)
+    T.save()
+    return
+
+
+
 def addproject(request):
     # If a user is authenticated and this is a post request, then
     # we proceed. Otherwise return an invalid page
@@ -233,8 +240,20 @@ def addproject(request):
         pid = int(request.POST.get('parentid'))
         projectname = request.POST.get('projectname')
         projectColor = genRandomColor();
+
+
         P = Project(user=U,name=projectname,date_started=timezone.now(),deadline=deadline,date_finished=timezone.now(),parentid=pid,color=projectColor)
         P.save()
+
+        # Loop through all the tasks posted with this project and create them as
+        # unassigned tasks
+
+        index = 1;
+        while not (request.POST.get(str(index)) is None):
+            newTaskName = request.POST.get(str(index))
+            createUnassignedTaskForUser(newTaskName,U,P)
+            index = index + 1
+
         return HttpResponseRedirect('/todolist/projects'+str(U.id))
     else :
         return HttpResponseRedirect('/todolist/invalid_project_add')

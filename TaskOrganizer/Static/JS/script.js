@@ -57,6 +57,15 @@ $(document).ready(function() {
         project.expandProject();
 
     });
+
+    $(".addDynamicTaskButton").click(function () {
+        var previousInput = $(this).prev();
+        var lastNumber = parseInt(previousInput.attr("name"));
+        var nextNumber = lastNumber + 1;
+        var newBreak = $("<br>");
+        newBreak.insertAfter(previousInput)
+        $("<input type='text' name='"+nextNumber+"'>").insertAfter(newBreak);
+    });
 });
 
 $.fn.minimizeProject = function () {

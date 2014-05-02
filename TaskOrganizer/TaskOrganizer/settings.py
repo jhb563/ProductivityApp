@@ -70,7 +70,7 @@ LOGIN_URL = '/login/'
 
 # Additional locations of static files
 STATICFILES_DIRS = (
-    ('assets','/Users/James/Productivity/TaskOrganizer/Static'),
+    ('assets','/Users/James/Documents/GitHub/ProductivityApp/TaskOrganizer/Static'),
     # Put strings here, like "/home/html/static" or "C:/www/django/static".
     # Always use forward slashes, even on Windows.
     # Don't forget to use absolute paths, not relative paths.
@@ -114,8 +114,8 @@ TEMPLATE_DIRS = (
     # Put strings here, like "/home/html/django_templates" or "C:/www/django/templates".
     # Always use forward slashes, even on Windows.
     # Don't forget to use absolute paths, not relative paths.
-    '/Users/James/Productivity/TaskOrganizer/TaskOrganizer/Templates/',
-    '/Users/James/Productivity/TaskOrganizer/todolist/templates/todolist/',
+    '/Users/James/Documents/GitHub/ProductivityApp/TaskOrganizer/TaskOrganizer/Templates/',
+    '/Users/James/Documents/GitHub/ProductivityApp/TaskOrganizer/todolist/Templates/todolist/',
 )
 
 INSTALLED_APPS = (
