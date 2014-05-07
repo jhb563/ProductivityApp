@@ -31,3 +31,13 @@ button
 	height : 40px;
 	width : 200px;
 }
+
+.priorityInput
+{
+	width: 40px;
+}
+
+.colorChangeForm
+{
+	margin: 5px;
+}

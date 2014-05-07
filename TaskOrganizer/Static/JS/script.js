@@ -4,6 +4,8 @@ $(document).ready(function() {
     $(".addProjectForm").hide();
     $(".hideProjectForm").hide();
     $(".ExpandButton").hide();
+    $(".colorChangeForm").hide();
+    $(".hideColorForm").hide();
 
     var d = new Date();
     var month = d.getMonth()+1;
@@ -44,6 +46,18 @@ $(document).ready(function() {
     	$(this).hide();
     });
 
+    $(".showColorForm").click(function () {
+        $(this).siblings(".colorChangeForm").show();
+        $(this).siblings(".hideColorForm").show();
+        $(this).hide();
+    });
+
+    $(".hideColorForm").click(function () {
+        $(this).siblings(".colorChangeForm").hide();
+        $(this).siblings(".showColorForm").show();
+        $(this).hide();
+    })
+
     $(".MinimizeButton").click(function () {
 
         var project = $(this).parent();
@@ -59,12 +73,60 @@ $(document).ready(function() {
     });
 
     $(".addDynamicTaskButton").click(function () {
-        var previousInput = $(this).prev();
-        var lastNumber = parseInt(previousInput.attr("name"));
-        var nextNumber = lastNumber + 1;
-        var newBreak = $("<br>");
-        newBreak.insertAfter(previousInput)
-        $("<input type='text' name='"+nextNumber+"'>").insertAfter(newBreak);
+        // Select the table containing the tasks
+        // It should be the element two before
+        // the button that was pressed
+        var table = $(this).prev().prev();
+
+        // Get the number of the last input by using the
+        // size of the table. This is the next number
+        // we will use for the input tracking
+        var nextNumber = table.find("tr").length;
+
+
+
+
+        // Create new inputs and wrap them in data cells
+        // also add each cell to a row item
+        var newRow = $("<tr></tr>");
+
+        var nameCell = $("<td></td>");
+        var nameInput = $("<input type='text' name='"+nextNumber+"'>");
+        nameCell.append(nameInput);
+        newRow.append(nameCell);
+
+        var timeLengthCell = $("<td></td>");
+        var timeLengthInput = $("<input type='number' name='timeReq"+nextNumber+"' min='0' max='90' step='15'>");
+        timeLengthCell.append(timeLengthInput);
+        newRow.append(timeLengthCell);
+
+        var priorityCell = $("<td></td>");
+        var priorityInput = $("<input type='number' class='priorityInput' name='priority"+nextNumber+"' min='0'>");
+        priorityCell.append(priorityInput);
+        newRow.append(priorityCell);
+
+        var deadlineCell = $("<td></td>");
+        var deadlineInput = $("<input type='datetime-local' name='time"+nextNumber+"'>");
+        deadlineCell.append(deadlineInput);
+        newRow.append(deadlineCell);
+
+
+        // Add the new row item to the table
+
+        table.append(newRow);
+    });
+
+    $(".removeDynamicTaskButton").click(function () {
+        // Remove the last row of the table (unless there's only
+        //one row)
+        var table = $(this).prev().prev();
+        var tableChildren = table.children();
+        if (tableChildren.length() >= 2) {
+            var lastRow = table.children().last();
+            lastRow.remove();
+        }
+
+
     });
 });
 
@@ -78,6 +140,9 @@ $.fn.minimizeProject = function () {
     $(this).children(".addTaskFormButton").hide();
     $(this).children(".addTaskForm").hide();
     $(this).children(".hideTaskForm").hide();
+    $(this).children(".showColorForm").hide();
+    $(this).children(".colorChangeForm").hide();
+    $(this).children(".hideColorForm").hide();
 };
 
 $.fn.expandProject = function () {
@@ -94,4 +159,5 @@ $.fn.expandProject = function () {
     $(this).children(".hideTaskForm").hide();
     $(this).children(".addProjectForm").hide();
     $(this).children(".hideProjectForm").hide();
+    $(this).children(".showColorForm").show();
 }

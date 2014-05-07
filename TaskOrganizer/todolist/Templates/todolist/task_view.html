@@ -20,6 +20,13 @@
             </button>
             <input type="hidden" name="taskid" value={{task.id}}>
         </form>
+        <form action="/todolist/delayTask/" method="post" style="display:inline!important;">
+            {% csrf_token %}
+            <button type="submit" name="delaytask" class="DelayButton">
+                Delay
+            </button>
+            <input type="hidden" name="taskid" value={{task.id}}>
+        </form>
         
 
 	</div>

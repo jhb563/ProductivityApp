@@ -7,12 +7,38 @@
 	                <label for="projectname">Name:</label>
 	                <input type="text" name="projectname" value="" id="projectname">
 	                <br>
+	                <label for="deadline">Project Deadline:</label>
 	                <input class="datetimepicker" type="datetime-local" name="deadline" id="deadline">
 	                <br>
-	                
-	                <input type="text" name="1">
+	                <label>Tasks</label>
+	                <table class="inputTable">
+	                	<tr>
+	                		<td>Name</td>
+	                		<td>Time Required</td>
+	                		<td>Priority</td>
+	                		<td>Deadline(Optional)</td>
+	                	</tr>
+	                	<tr>
+	                		<td>
+	                			<input type="text" name="1">
+	                		</td>
+	                		<td>
+	                			<input type="number" name="timeReq1" min="0" max="90" step="15">
+	                		</td>
+	                		<td>
+	                			<input type="number" class="priorityInput" name="priority1" min="0">
+	                		</td>
+	                		<td>
+	                			<input type="datetime-local" name="time1">
+	                		</td>
+	                	</tr>
+	                </table>
+	                <br>
 	                <button type="button" class="addDynamicTaskButton">
 	                	+
+	                </button>
+	                <button type="button" class="removeDynamicTaskButton">
+	                	-
 	                </button>
 	                <br>
 	                <input type="submit" name="Add Project">

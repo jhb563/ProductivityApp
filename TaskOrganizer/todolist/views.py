@@ -11,6 +11,8 @@ from collections import deque
 
 from todolist.models import Project, Task, UserOptions
 
+
+# User Profile Page
 def profile(request, user_id):
     UList = User.objects.filter(id = user_id)
 
@@ -21,6 +23,8 @@ def profile(request, user_id):
     if request.user.is_authenticated() and request.user == U:
         # Show the user's profile, including stats and a link
         # to their projects page
+
+        # Query database to build user statistics
 
         thisUserTasks = Task.objects.filter(user = U)
         finishedTasks = thisUserTasks.filter(finished = 1)
@@ -33,7 +37,7 @@ def profile(request, user_id):
             if t.finishedRecently():
                 tFinRecentCount += 1
 
-
+        
         thisUserProjects = Project.objects.filter(user = U)
         finishedProjects = thisUserProjects.filter(finished = 1)
         unfinishedProjects = thisUserProjects.filter(finished = 0)
@@ -126,7 +130,6 @@ def assignDeadlinesToTasks(request):
             # keep track of the difference
             opts = UserOptions.objects.filter(user = U)[0]
             timeRemaing = opts.timeForDay(dayOfWeek)
-            print(str(timeRemaing))
 
             # Subtract from the time remaining the amount of time already
             # used by tasks
@@ -219,13 +222,22 @@ def genRandomColor():
         j = randrange(16)
         result.append(charMap[j])
     result = ''.join(result)
-    print result
     return result
 
 
-def createUnassignedTaskForUser(taskname,user,parentProject):
+def createTaskForUserFromList(taskname,user,parentProject,taskDeadline,taskPriority,timeRequired):
+    # Create a placeholder value for times
+    # If the user has submitted a valid deadline for this task, then
+    # it is an assigned task. Otherwise, it is unassigned, so the
+    # deadline will not matter, as it will be changed upon assignment
     t = timezone.now()
-    T = Task(user=user,name=taskname,date_started = t,deadline=t,date_finished=t,parent_project=parentProject)
+    if taskDeadline == "":
+        deadline = t
+        assignedValue = 0
+    else:
+        deadline = taskDeadline
+        assignedValue = 1
+    T = Task(user=user,name=taskname,date_started = t,deadline=deadline,date_finished=t,parent_project=parentProject,assigned = assignedValue,priority = taskPriority,timeAllocation=timeRequired)
     T.save()
     return
 
@@ -248,11 +260,22 @@ def addproject(request):
         # Loop through all the tasks posted with this project and create them as
         # unassigned tasks
 
+        print(request.POST)
+
         index = 1;
         while not (request.POST.get(str(index)) is None):
             newTaskName = request.POST.get(str(index))
-            createUnassignedTaskForUser(newTaskName,U,P)
+            taskDeadline = request.POST.get("time"+str(index))
+            taskPriority = request.POST.get("priority"+str(index))
+            timeRequired = request.POST.get("timeReq"+str(index))
             index = index + 1
+            if newTaskName == "":
+                continue
+            else:
+                createTaskForUserFromList(newTaskName,U,P,taskDeadline,taskPriority,timeRequired)
+
+            
+            
 
         return HttpResponseRedirect('/todolist/projects'+str(U.id))
     else :
@@ -324,7 +347,7 @@ def demoteProject(request):
         else :
             # Get parent project
             parentID = P.parentid
-            # Should be able to have tasks not attached to projects
+            # TODO Should be able to have tasks not attached to projects
             if parentID == -1:
                 return HttpResponseRedirect('/todolist/projects'+str(U.id))
 
@@ -343,6 +366,23 @@ def demoteProject(request):
         return HttpResponseRedirect('/todolist/projects'+str(U.id))
     else :
         return HttpResponseRedirect('/todolist/invalid_project_add')
+
+
+def changeColor(request):
+    U = request.user
+    if request.user.is_authenticated() and request.POST:
+        projectid = request.POST.get('projectid','')
+        projectid = int(projectid)
+        Ps = Project.objects.filter(id = projectid)
+        # TODO Handle empty case?
+        P = Ps[0]
+        color = request.POST.get('color')
+        P.color = "#" + color
+        P.save()
+        return HttpResponseRedirect('/todolist/projects'+str(U.id))
+    else :
+        return HttpResponseRedirect('/todolist/invalid_task_access')
+
 
 def addtask(request):
     # If a user is authenticated and this is a post request, then we
@@ -409,7 +449,7 @@ def removeTask(request):
         taskid = request.POST.get('taskid','')
         taskid = int(taskid)
         Ts = Task.objects.filter(user=U,id=taskid)
-        T = Ts[0] # Will cause problems if none are available
+        T = Ts[0] # TODO Will cause problems if none are available
         T.delete()
         return HttpResponseRedirect('/todolist/projects'+str(U.id))
     else:
@@ -438,6 +478,22 @@ def promoteTask(request):
         projectColor = genRandomColor();
         P = Project(user = U, name = tName, deadline = tDeadline, date_started = tStart, date_finished = tFinish, parentid = parentID, color = projectColor)
         P.save()
+        return HttpResponseRedirect('/todolist/projects'+str(U.id))
+    else :
+        return HttpResponseRedirect('todolist/invalid_task_access')
+
+def delayTask(request):
+    U = request.user
+    if request.user.is_authenticated() and request.POST:
+        # Get task, turn into projects
+        taskID = request.POST.get('taskid','')
+        taskID = int(taskID)
+        Ts = Task.objects.filter(user = U, id = taskID)
+        T = Ts[0]
+        tDeadline = T.deadline
+        newDeadline = tDeadline + timedelta(days = 1)
+        T.deadline = newDeadline
+        T.save()
         return HttpResponseRedirect('/todolist/projects'+str(U.id))
     else :
         return HttpResponseRedirect('todolist/invalid_task_access')

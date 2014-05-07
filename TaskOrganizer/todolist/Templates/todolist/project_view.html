@@ -18,6 +18,7 @@
 	            	<button type="submit" name="demoteproject" class="DemoteButton">Demote</button>
 	            	<input type="hidden" name="projectid" value={{project.id}}>
 	            </form>
+
 	            
 	            
 	            <br>
@@ -56,6 +57,19 @@
 	            {% endif %}
 
 	            {% include "add_project_form.html" %}
+
+	            <br>
+
+	            <button class="showColorForm">Change Color!</button>
+
+	            <form class="colorChangeForm" action="/todolist/changeColor/" method="post">
+	            	{% csrf_token %}
+	            	<input class="color" name="color">
+	            	<input type="submit">
+	            	<input type="hidden" name="projectid" value={{project.id}}>
+	            </form>
+
+	            <button class="hideColorForm">Hide</button>
 
 	            <br>
 
