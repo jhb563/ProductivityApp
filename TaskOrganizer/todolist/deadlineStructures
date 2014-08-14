@@ -1,0 +1,46 @@
+
+
+
+class Node():
+    def __init__(self,taskForNode):
+        self.task = taskForNode
+        self.numberOfRequirements = 0
+        self.childNodes = []
+
+    def addRequirement(self):
+        self.numberOfRequirements += 1
+
+    def removeRequirement(self):
+        self.numberOfRequirements -= 1
+
+    def addChild(self,childNode):
+        childNodes.append(childNode)
+
+class Graph():
+    def __init__(self, project):
+        self.allNodes = {}
+        self.reachableNodes = {}
+        allTasks = Task.objects.filter(parent_project = project, finished = 0, deadlineIsHard = 0)
+        for task in allTasks:
+            allNodes[task.id] = Node(task)
+
+        for topLevelTask in [task for task in allTasks if not task.hasUnfinishedPrereqs]:
+            reachableNodes[topLevelTask.id] = Node(topLevelTask)
+
+        for lowerLevelTask in [task for task in allTasks if task.hasUnfinishedPrereqs]:
+            for higherLevelTask in lowerLevelTask.requiredTasks:
+                thisNode = allNodes[lowerLevelTask.id]
+                thisNode.addRequirement
+                allNodes[higherLevelTask.id].addChild(thisNode)
+
+    def popTask(self,taskToPop):
+        results = []
+        if taskToPop.id in self.reachableNodes:
+            nodeForTask = self.reachableNodes[taskToPop.id]
+            for node in nodeForTask.childNodes:
+                node.removeRequirement()
+                if node.numberOfRequirements == 0 :
+                    reachableNodes[node.task.id] = node
+                    results.append(node)
+            self.reachableNodes[taskToPop.id] = None
+        return results

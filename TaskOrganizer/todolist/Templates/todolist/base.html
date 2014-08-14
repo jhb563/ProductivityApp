@@ -8,10 +8,21 @@
 	<script type = "text/javascript" src=" {% static "assets/JS/jscolor.js" %}"></script>
 </head>
 
-<body>
-	<div id="content">
-		{% block content %}{% endblock %}
+<body id="baseBody">
+	<h1 id="titleHeader"> My To-do List </h1>
+	<hr>
+	<div id="baseBody">
+		<div id="sidebar">
+			{% block sidebar %}{% endblock %}
+		</div>
+		<div id="content">
+			{% block content %}{% endblock %}
+		</div>
+		<div id="taskBar">
+			{% block taskBar %}{% endblock %}
+		</div>
 	</div>
+
 </body>
 
 </html>

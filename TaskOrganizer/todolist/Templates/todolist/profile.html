@@ -1,5 +1,12 @@
 {% extends "base.html" %}
 
+{% block sidebar %}
+	{% if user %}
+    	<a href="/todolist/projects{{user.id}}/">Back to Projects</a>
+	{% endif %}
+
+{% endblock %}
+
 {% block content %}
 
 	{% if user %}
@@ -68,8 +75,8 @@
 		{% endif %}
 
 
-    <a href="/todolist/projects{{user.id}}/">Back to Projects</a>
 	{% endif %}
+
 
 
 

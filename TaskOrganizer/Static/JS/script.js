@@ -100,11 +100,6 @@ $(document).ready(function() {
         timeLengthCell.append(timeLengthInput);
         newRow.append(timeLengthCell);
 
-        var priorityCell = $("<td></td>");
-        var priorityInput = $("<input type='number' class='priorityInput' name='priority"+nextNumber+"' min='0'>");
-        priorityCell.append(priorityInput);
-        newRow.append(priorityCell);
-
         var deadlineCell = $("<td></td>");
         var deadlineInput = $("<input type='datetime-local' name='time"+nextNumber+"'>");
         deadlineCell.append(deadlineInput);
@@ -119,10 +114,10 @@ $(document).ready(function() {
     $(".removeDynamicTaskButton").click(function () {
         // Remove the last row of the table (unless there's only
         //one row)
-        var table = $(this).prev().prev();
-        var tableChildren = table.children();
-        if (tableChildren.length() >= 2) {
-            var lastRow = table.children().last();
+        var table = $(this).prev().prev().prev();
+        var tableChildren = table.find("tr");
+        if (tableChildren.length >= 3) {
+            var lastRow = tableChildren.last();
             lastRow.remove();
         }
 

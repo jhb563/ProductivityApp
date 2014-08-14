@@ -3,7 +3,5 @@
 	            <form class="addTaskForm" action="/todolist/addtask/" method="post">
 	            	{% csrf_token %}
 	            	{% include "add_task_form_base.html/" %}
-	            	<br>
-	            	<input type="hidden" name="projectid" value="{{project.id}}"">
 	            </form>
 	            <button class="hideTaskForm">Hide</button>

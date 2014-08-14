@@ -56,7 +56,8 @@ class Project(models.Model):
         else :
             return self.date_finished <= timezone.now() - datetime.timedelta(days = 7)
 
-    
+    def containsMalleableTasks(self):
+        return Task.objects.filter(parent_project=self,finished=0,deadlineIsHard = 0).count() > 0
 
     
 
@@ -66,12 +67,12 @@ class Task(models.Model):
     name = models.CharField(max_length=200)
     deadline = models.DateTimeField('Deadline')
     date_finished = models.DateTimeField('Date Finished')
-    parent_project = models.ForeignKey(Project)
+    parent_project = models.ForeignKey(Project,null=True)
     finished = models.IntegerField(default=0)
     requiredTasks = models.ManyToManyField('self',null=True,symmetrical=False)
     timeAllocation = models.IntegerField(default = 60)
-    priority = models.IntegerField(default = 1)
     assigned = models.IntegerField(default = 0)
+    deadlineIsHard = models.IntegerField(default = 0)
 
 
     def __unicode__(self):
@@ -90,3 +91,19 @@ class Task(models.Model):
             return false
         else :
             return self.date_finished <= timezone.now() - datetime.timedelta(days = 7)
+
+    def hasUnfinishedPrereqs(self):
+        return self.requiredTasks.filter(finished = 0, deadlineIsHard = 0).count() > 0
+
+    # Weight tasks on how much time they take, and how long until their
+    # parent's deadline
+    def taskWeight(self):
+        timeToDeadline = self.parent_project.deadline - timezone.now()
+        days, seconds = timeToDeadline.days, timeToDeadline.seconds
+        totalSeconds = days * 3600 * 24 + seconds
+        return (totalSeconds * self.timeAllocation)
+
+    # Used in heapifying the data while assigning deadlines
+    def __cmp__(self,other):
+        return cmp(self.taskWeight(),other.taskWeight())
+

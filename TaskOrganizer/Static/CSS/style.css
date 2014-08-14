@@ -28,7 +28,7 @@ button
 .scroll_checkbox
 {
 	overflow-y : auto;
-	height : 40px;
+	height : 60px;
 	width : 200px;
 }
 
@@ -40,4 +40,37 @@ button
 .colorChangeForm
 {
 	margin: 5px;
+}
+
+#titleHeader
+{
+	text-align: center;
+}
+
+#baseBody
+{
+	display: table;
+}
+
+#sidebar
+{
+	display: table-cell;
+	padding: 5px;
+}
+
+#content
+{
+	display: table-cell;
+	padding: 5px;
+}
+
+#taskBar
+{
+	display: table-cell;
+	padding: 5px;
+}
+
+body
+{
+
 }

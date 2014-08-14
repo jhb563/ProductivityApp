@@ -1,4 +1,8 @@
-<button class="addProjectFormButton">Add Subproject</button>
+{% if project.id %}
+	<button class="addProjectFormButton">Add Subproject</button>
+{% else %}
+	<button class="addProjectFormButton">Add Project</button>
+{% endif %}
 
 	            <br>
 
@@ -43,7 +47,11 @@
 	                <br>
 	                <input type="submit" name="Add Project">
 	                <br>
-	                <input type="hidden" name="parentid" value="{{project.id}}">
+	                {% if project.id %}
+	                	<input type="hidden" name="parentid" value="{{project.id}}">
+	                {% else %}
+	                	<input type="hidden" name="parentid" value="-1">
+	                {% endif %}
 	            </form>
 
 
