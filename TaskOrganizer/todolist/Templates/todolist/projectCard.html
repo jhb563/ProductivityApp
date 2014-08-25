@@ -1,0 +1,43 @@
+
+{% if project %}
+{% load staticfiles %}
+<div class="projectCard" style="background : {{background_color}}">
+	{{project.name}}<br>
+	{{deadline_date}}<br>
+	Subprojects: {{subproject_count}}<br>
+	Tasks: {{subtask_count}}<br>
+	<form class="cardButton finishProjectForm" method="post" action="/todolist/finishProject/">
+		{% csrf_token %}
+		<input type="image" src="{% static "assets/Images/checkmark.png" %}" alt="Finish" width="40" height="40"/>
+		<input type="hidden" name="projectid" value={{project.id}}>
+	</form>
+	<form class="cardButton demoteProjectForm" method="post" action="/todolist/demoteProject/">
+		{% csrf_token %}
+		<input type="image" src="{% static "assets/Images/demote.png" %}" alt="Demote" width="40" height="40"/>
+		<input type="hidden" name="projectid" value={{project.id}}>
+	</form>
+	<form class="cardButton deleteProjectForm" method="post" action="/todolist/removeProject/">
+		{% csrf_token %}
+		<input type="image" src="{% static "assets/Images/delete.png" %}" alt="Delete" width="40" height="40"/>
+		<input type="hidden" name="projectid" value={{project.id}}>
+	</form>
+
+	{% if subprojects %}
+	<div class="subProjectIDs">
+		{% for subid in subprojects %}
+		<input type="hidden" value="{{subid}}"/>
+		{% endfor %}
+	</div>
+	{% endif %}
+
+	{% if subtasks %}
+	<div class="subTaskIDs">
+		{% for subid in subtasks %}
+		<input type="hidden" value="{{subid}}"/>
+		{% endfor %}
+	</div>
+
+	{% endif %}
+	
+</div>
+{% endif %}

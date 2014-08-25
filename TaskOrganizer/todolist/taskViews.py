@@ -19,6 +19,39 @@ def genRandomColor():
     result = ''.join(result)
     return result
 
+def taskCardView(request, user_id, task_id):
+    usersForID = User.objects.filter(id = user_id)
+    
+
+    if len(usersForID) == 1 and request.user.is_authenticated() and request.user == usersForID[0]:
+        tasksWithID = Task.objects.filter(user = usersForID[0], id = task_id)
+        if len(tasksWithID) != 1:
+            # TODO Maybe a better error page?
+            return HttpResponseRedirect('/accounts/invalid')
+
+        thisTask = tasksWithID[0]
+
+        if thisTask.finished == 1:
+            background_color = '#599c59'
+        elif thisTask.isUrgent():
+            background_color = '#FF3333'
+        elif thisTask.deadlineIsGettingClose():
+            background_color = '#FFFF33'
+        else :
+            background_color = '#599c59'
+
+        template = loader.get_template('todolist/taskCard.html')
+        contextDict = { 'task' : thisTask, 'background_color' : background_color}
+
+        if thisTask.deadline is not None:
+            d = thisTask.deadline
+            contextDict['deadline_date'] = str(d.month) + '/' + str(d.day) + '/' + str(d.year)
+        context = RequestContext(request, contextDict)
+        return HttpResponse(template.render(context))
+    else :
+        # TODO Better error page
+        return HttpResponseRedirect('accounts/invalid')
+
 
 def createTaskForUserFromList(taskname,user,parentProject,taskDeadline,timeRequired):
     # Create a placeholder value for times
@@ -87,7 +120,7 @@ def finishTask(request):
 
         T = Ts[0]
         RequiredTasks = T.requiredTasks.filter(finished=0)
-        if len(RequiredTasks) <= 0:
+        if RequiredTasks.count() <= 0:
             T.finished = 1
             T.save()
         else :
@@ -95,7 +128,10 @@ def finishTask(request):
             print "Cannot finish this task"
 
         
-        return HttpResponseRedirect('/todolist/projects'+str(U.id))
+        if request.is_ajax():
+            return HttpResponse('Success')
+        else :
+            return HttpResponseRedirect('/todolist/projects'+str(U.id))
     else:
         return HttpResponseRedirect('/todolist/invalid_task_access/')
 
@@ -114,7 +150,10 @@ def removeTask(request):
             return HttpResponseRedirect('/todolist/invalid_task_access/')
         T = Ts[0]
         T.delete()
-        return HttpResponseRedirect('/todolist/projects'+str(U.id))
+        if request.is_ajax():
+            return HttpResponse('Success')
+        else :
+            return HttpResponseRedirect('/todolist/projects'+str(U.id))
     else:
         return HttpResponseRedirect('/todolist/invalid_task_access/')
 
@@ -145,7 +184,11 @@ def promoteTask(request):
         projectColor = genRandomColor();
         P = Project(user = U, name = tName, deadline = tDeadline, date_started = tStart, date_finished = tFinish, parentid = parentID, color = projectColor)
         P.save()
-        return HttpResponseRedirect('/todolist/projects'+str(U.id))
+        # TODO Should include new project stuff as well, at least ID
+        if request.is_ajax():
+            return HttpResponse('Success')
+        else :
+            return HttpResponseRedirect('/todolist/projects'+str(U.id))
     else :
         return HttpResponseRedirect('todolist/invalid_task_access/')
 
@@ -166,7 +209,10 @@ def delayTask(request):
         newDeadline = tDeadline + timedelta(days = 1)
         T.deadline = newDeadline
         T.save()
-        return HttpResponseRedirect('/todolist/projects'+str(U.id))
+        if request.is_ajax():
+            return HttpResponse('Success')
+        else :
+            return HttpResponseRedirect('/todolist/projects'+str(U.id))
     else :
         return HttpResponseRedirect('todolist/invalid_task_access/')
 

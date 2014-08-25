@@ -45,6 +45,59 @@ def addproject(request):
     else :
         return HttpResponseRedirect('/todolist/invalid_project_add')
 
+def projectCardView(request, user_id, project_id):
+    usersForID = User.objects.filter(id = user_id)
+    
+
+    if len(usersForID) == 1 and request.user.is_authenticated() and request.user == usersForID[0]:
+        thisUser = usersForID[0]
+        projectsWithID = Project.objects.filter(user = thisUser, id = project_id)
+        if len(projectsWithID) != 1:
+            # TODO
+            return HttpResponseRedirect('/todolist/invalid_project_add')
+
+        thisProject = projectsWithID[0]
+
+        if thisProject.finished == 1:
+            background_color = '#599c59'
+        elif thisProject.isUrgent():
+            background_color = '#FF3333'
+        elif thisProject.deadlineIsGettingClose():
+            background_color = '#FFFF33'
+        else :
+            background_color = '#599c59'
+
+        d = thisProject.deadline
+        deadline_date = str(d.month) + '/' + str(d.day) + '/' + str(d.year)
+
+        taskAndProjectCount = thisProject.countSubprojectsAndTasks()
+        subtask_count = taskAndProjectCount[0]
+        subproject_count = taskAndProjectCount[1]
+
+        subprojects = []
+        for subProj in Project.objects.filter(user = thisUser, parentid = project_id):
+            subprojects.append(subProj.id)
+
+        subtasks = []
+        for subTask in Task.objects.filter(user = thisUser, parent_project = thisProject):
+            subtasks.append(subTask.id)
+
+        template = loader.get_template('todolist/projectCard.html')
+        contextDict = { 
+            'project' : thisProject, 
+            'background_color' : background_color, 
+            'deadline_date' : deadline_date, 
+            'subproject_count' : subproject_count,
+            'subtask_count' : subtask_count,
+            'subprojects' : subprojects,
+            'subtasks' : subtasks
+            }
+        context = RequestContext(request, contextDict)
+        return HttpResponse(template.render(context))
+    else :
+        return HttpResponseRedirect('accounts/invalid')
+
+
 def invalid_project_add(request):
     U = request.user
     if request.user.is_authenticated():
@@ -72,7 +125,10 @@ def finishProject(request):
             P.finished = 1
             P.date_finished = timezone.now()
             P.save()
-        return HttpResponseRedirect('/todolist/projects'+str(U.id))
+        if request.is_ajax():
+            return HttpResponse('Success')
+        else :
+            return HttpResponseRedirect('/todolist/projects'+str(U.id))
     else:
         return HttpResponseRedirect('/todolist/invalid_project_add')
 
@@ -91,7 +147,10 @@ def removeProject(request):
         else :
             P.delete()
         
-        return HttpResponseRedirect('/todolist/projects'+str(U.id))
+        if request.is_ajax():
+            return HttpResponse('Success')
+        else :
+            return HttpResponseRedirect('/todolist/projects'+str(U.id))
     else:
         return HttpResponseRedirect('/todolist/invalid_project_add')
 
@@ -130,7 +189,11 @@ def demoteProject(request):
             P.delete()
             T = Task(user = U,name = pName, date_started = dateStarted, deadline = pDeadline,parent_project = parentProject,date_finished=dateFinished)
             T.save()
-        return HttpResponseRedirect('/todolist/projects'+str(U.id))
+        # TODO include task in this response
+        if request.is_ajax():
+            return HttpResponse('Success')
+        else :
+            return HttpResponseRedirect('/todolist/projects'+str(U.id))
     else :
         return HttpResponseRedirect('/todolist/invalid_project_add')
 

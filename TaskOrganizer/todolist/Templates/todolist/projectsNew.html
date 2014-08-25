@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+
+{% block scriptin %}
+{% load static %}
+	<script type = "text/javascript" src=" {% static "assets/JS/asyncLoading.js" %}"></script>
+{% endblock %}
+
+{% block content %}
+
+<input id="userID" type="hidden" value="{{user_id}}"/>
+
+{% if projectIDs %}
+<div id="projectIDs">
+	{% for id in projectIDs %}
+		<input type="hidden" value="{{id}}"/>
+	{% endfor %}
+</div>
+{% endif %}
+
+<div id="projectsSection">
+
+</div>
+<hr>
+
+{% if taskIDs %}
+<div id="taskIDs">
+	{% for id in taskIDs %}
+		<input type="hidden" value="{{id}}"/>
+	{% endfor %}
+</div>
+{% endif %}
+
+<div id="tasksSection">
+
+</div>
+
+{% endblock %}

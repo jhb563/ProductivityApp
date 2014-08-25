@@ -85,7 +85,6 @@ $(document).ready(function() {
 
 
 
-
         // Create new inputs and wrap them in data cells
         // also add each cell to a row item
         var newRow = $("<tr></tr>");
@@ -104,7 +103,6 @@ $(document).ready(function() {
         var deadlineInput = $("<input type='datetime-local' name='time"+nextNumber+"'>");
         deadlineCell.append(deadlineInput);
         newRow.append(deadlineCell);
-
 
         // Add the new row item to the table
 

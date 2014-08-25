@@ -218,7 +218,52 @@ def projects(request, user_id):
     else :
         return HttpResponseRedirect('/accounts/invalid')
 
+def projectsTest(request, user_id):
+    UList = User.objects.filter(id = user_id)
 
+    
+    
+    if len(UList) < 1:
+        return HttpResponseRedirect('/accounts/invalid')
+    
+    U = UList[0]
+    if request.user.is_authenticated() and request.user == U:
+        template = loader.get_template('todolist/projectsTest.html')
+        context = RequestContext(request,{
+            'user_id' : U.id,
+            })
+        return HttpResponse(template.render(context))
+    else :
+        return HttpResponseRedirect('/accounts/invalid')
 
+def projectsNew(request, user_id):
+    UList = User.objects.filter(id = user_id)
 
+    
+    
+    if len(UList) < 1:
+        return HttpResponseRedirect('/accounts/invalid')
 
+    U = UList[0]
+    if request.user.is_authenticated() and request.user == U:
+        template = loader.get_template('todolist/projectsNew.html')
+
+        rootProjects = Project.objects.filter(user = U, parentid = -1, finished = 0)
+        projectIDs = []
+        for project in rootProjects:
+            projectIDs.append(project.id)
+
+        rootTasks = Task.objects.filter(user = U, parent_project = None, finished = 0)
+        taskIDs = []
+        for task in rootTasks:
+            taskIDs.append(task.id)
+        
+
+        context = RequestContext(request, {
+            'user_id' : U.id,
+            'projectIDs' : projectIDs,
+            'taskIDs' : taskIDs,
+            })
+        return HttpResponse(template.render(context))
+    else :
+        return HttpResponseRedirect('/accounts/invalid')

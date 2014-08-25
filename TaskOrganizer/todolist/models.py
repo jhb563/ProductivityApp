@@ -59,7 +59,26 @@ class Project(models.Model):
     def containsMalleableTasks(self):
         return Task.objects.filter(parent_project=self,finished=0,deadlineIsHard = 0).count() > 0
 
-    
+    def isUrgent(self):
+        return self.deadline <= timezone.now() + datetime.timedelta(days = 1)
+
+    def deadlineIsGettingClose(self):
+        return self.deadline <= timezone.now() + datetime.timedelta(days = 4)
+
+    def countSubprojectsAndTasks(self):
+        
+        taskCount = Task.objects.filter(parent_project = self, finished = 0).count()
+        immediateSubprojects = Project.objects.filter(parentid = self.id, finished = 0)
+        projectCount = immediateSubprojects.count()
+
+        for proj in immediateSubprojects:
+            projectAndTaskCount = proj.countSubprojectsAndTasks()
+            taskCount += projectAndTaskCount[0]
+            projectCount += projectAndTaskCount[1]
+        result = []
+        result.append(taskCount)
+        result.append(projectCount)
+        return result
 
 class Task(models.Model):
     user = models.ForeignKey(User)
@@ -85,6 +104,8 @@ class Task(models.Model):
     def isUrgent(self):
         return self.deadline <= timezone.now() + datetime.timedelta(days = 1)
 
+    def deadlineIsGettingClose(self):
+        return self.deadline <= timezone.now() + datetime.timedelta(days = 4)
 
     def finishedRecently(self):
         if self.finished == 0:

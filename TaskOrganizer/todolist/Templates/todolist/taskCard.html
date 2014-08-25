@@ -1,0 +1,29 @@
+
+{% if task %}
+{% load staticfiles %}
+<div class="taskCard" style="background : {{background_color}}">
+
+	<span>{{task.name}}</span><br>
+	{% if deadline_date %}
+		<span>{{deadline_date}}</span>
+		<input class="cardButton" type="image" src="{% static "assets/Images/pinned.png" %}" alt="" height="20" width = "20"/><br>
+	{% endif %}
+	<img src="{% static "assets/Images/clock.png" %}" alt="Time :" width="20" height="20"/> {{task.timeAllocation}} minutes<br>
+	<form class="cardButton finishTaskForm" method="post" action="/todolist/finishTask/">
+		{% csrf_token %}
+		<input type="image" src="{% static "assets/Images/checkmark.png" %}" alt="Finish" width="40" height="40"/>
+		<input type="hidden" name="taskid" value={{task.id}}>
+	</form>
+	<form class="cardButton promoteTaskForm" method="post" action="/todolist/promoteTask/">
+		{% csrf_token %}
+		<input type="image" src="{% static "assets/Images/promote.png" %}" alt="Promote" width="40" height="40"/>
+		<input type="hidden" name="taskid" value={{task.id}}>
+	</form>
+	<form class="cardButton deleteTaskForm" method="post" action="/todolist/removeTask/">
+		{% csrf_token %}
+		<input type="image" src="{% static "assets/Images/delete.png" %}" alt="Delete" width="40" height="40"/>
+		<input type="hidden" name="taskid" value={{task.id}}>
+	</form>
+</div>
+{% endif %}
+

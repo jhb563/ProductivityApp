@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+
+{% block scriptin %}
+{% load static %}
+	<script type = "text/javascript" src=" {% static "assets/JS/asyncLoading.js" %}"></script>
+{% endblock %}
+
+{% block content %}
+
+
+
+<div id="projects">
+
+</div>
+
+<input id="userID" type="hidden" value="{{user_id}}"/>
+<input id="projectIDInput" type="number"/>
+<Button class="addProjectButton">Add Project</Button>
+
+<hr>
+
+<div id="tasks">
+</div>
+
+<input id="taskIDInput" type="number"/>
+<Button class="addTaskButton">Add Task</Button>
+
+
+
+{% endblock %}
